@@ -1,8 +1,8 @@
 import { PostsDatabase } from "../database/PostsDatabase"
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
-import { BadRequestError } from "../errors/BadRequestError"
 import { NotFoundError } from "../errors/NotFoundError"
-import { Post, PostModel } from "../models/Post"
+import { UnauthorizedError } from "../errors/UnauthorizedError"
+import { Post, PostModel, PostWithCreatorDB } from "../models/Post"
 import { TokenPayload } from "../models/User"
 import { HashManager } from "../services/HashManager"
 import { IdGenerator } from "../services/IdGenerator"
@@ -22,11 +22,11 @@ export class PostBusiness {
 
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
 
-        if(payload === null) {
-            throw new BadRequestError("É necessário o preenchimento de token para acessar o recurso.")
+        if(!payload) {
+            throw new UnauthorizedError()
         }
 
-        const postsDB = await this.postsDatabase.getPostsWithCreator(query)
+        const postsDB:PostWithCreatorDB[] = await this.postsDatabase.getPostsWithCreator(query)
         
         const posts:PostModel[] = postsDB.map((postDB) => { 
             const post = new Post(
@@ -35,7 +35,7 @@ export class PostBusiness {
                 postDB.likes,
                 postDB.dislikes,
                 postDB.created_at,
-                postDB.upload_at,
+                postDB.updated_at,
                 postDB.creator_id,
                 postDB.creator_name
             )

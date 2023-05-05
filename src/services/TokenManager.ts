@@ -22,9 +22,9 @@ export class TokenManager {
                 token,
                 process.env.JWT_KEY as string
             )
-
             return payload as TokenPayload
-				} catch (error) {
+
+		} catch (error) {
             return null
         }
     }
