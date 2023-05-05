@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { PostBusiness } from "../business/PostBusiness"
 import { GetPostsSchema } from "../dtos/Post/getPosts.dto"
 import { BaseError } from "../errors/BaseError"
+import { ZodError } from "zod"
 
 export class PostController{
     constructor(
@@ -26,11 +27,13 @@ export class PostController{
                 res.status(500)
             }
     
-            if (error instanceof BaseError) {
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+              } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
-            } else {
+              } else {
                 res.status(500).send("Erro inesperado.")
-            }
+              }
         }
     }
 }

@@ -1,5 +1,11 @@
 import { UsersDatabase } from "../database/UsersDatabase"
+import { DeleteUserByIdInputDTO, DeleteUserByIdOutputDTO } from "../dtos/User/deleteUserById.dto"
+import { EditUserByIdInputDTO, EditUserByIdOutputDTO } from "../dtos/User/editUserById.dto"
 import { GetUsersInputDTO, GetUsersOutputDTO } from "../dtos/User/getUsers.dto"
+import { LoginInputDTO, LoginOutputDTO } from "../dtos/User/login.dto"
+import { SignupInputDTO, SignupOutputDTO } from "../dtos/User/signup.dto"
+import { BadRequestError } from "../errors/BadRequestError"
+import { ConflictError } from "../errors/ConflictError"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
@@ -15,6 +21,79 @@ export class UserBusiness {
       private tokenManager: TokenManager,
       private hashManager: HashManager
     ) {}
+
+    public signup = async (input: SignupInputDTO): Promise<SignupOutputDTO> => {
+
+        const { name, email, password } = input
+
+        const userEmailExist:UserDB | undefined = await this.usersDatabase.getUserByEmail(email)
+
+        if (userEmailExist){
+            throw new ConflictError("Não deve é possível criar mais de uma conta com o mesmo e-mail. Tente novamente.")
+        }
+
+        const id = this.idGenerator.generate()
+        const hashedPassword = await this.hashManager.hash(password)
+    
+        const newUser = new User(
+          id,
+          name,
+          email,
+          hashedPassword,
+          USER_ROLES.NORMAL,
+          new Date().toISOString()
+        )
+    
+        const newUserDB:UserDB = newUser.toDBModel()
+        await this.usersDatabase.insertUser(newUserDB)
+    
+        const tokenPayload: TokenPayload = newUser.toTokenPayload()
+        const token = this.tokenManager.createToken(tokenPayload)
+    
+        const output: SignupOutputDTO = {
+          message: "Usuário cadastrado com sucesso!",
+          token: token
+        }
+    
+        return output
+    }
+
+    public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
+
+      const { email, password } = input
+
+      const userDB:UserDB | undefined = await this.usersDatabase.getUserByEmail(email)
+
+      if (!userDB){
+          throw new NotFoundError("Email não encontrado. Sign Up e tente novamente.")
+      }
+
+      const hashedPassword = userDB.password
+      const isPasswordCorrect = await this.hashManager.compare(password, hashedPassword)
+
+      if (!isPasswordCorrect) {
+        throw new BadRequestError("'Email' ou 'Password' incorretos. Tente novamente.")
+      }
+
+      const user = new User(
+        userDB.id,
+        userDB.name,
+        userDB.email,
+        userDB.password,
+        userDB.role,
+        userDB.created_at
+      )
+  
+      const tokenPayload: TokenPayload = user.toTokenPayload()
+      const token = this.tokenManager.createToken(tokenPayload)
+  
+      const output: LoginOutputDTO = {
+        message: "Login realizado com sucesso!",
+        token: token
+      }
+  
+      return output
+    }
 
     public getUsers = async (input: GetUsersInputDTO):Promise<GetUsersOutputDTO> => {
 
@@ -41,12 +120,94 @@ export class UserBusiness {
           userDB.role,
           userDB.created_at,    
       )
-      return user.toBusinessModel()
+        return user.toBusinessModel()
       })
 
       if(!users.length) throw new NotFoundError("Nenhum usuário cadastrado no banco de dados.")
   
       const output: GetUsersOutputDTO = users
+      return output
+    }
+
+    public editUserById = async (input: EditUserByIdInputDTO):Promise<EditUserByIdOutputDTO> => {
+
+      const { idToEditUser, name, email, password, token } = input
+
+      const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+
+      if(!payload) {
+        throw new UnauthorizedError()
+      }
+
+      if (payload.role !== USER_ROLES.ADMIN){
+        if (payload.id !== idToEditUser) {
+          throw new ForbiddenError("Somente o próprio usuário pode editar a própria conta. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
+        }
+      }
+      const userDB: UserDB | undefined = await this.usersDatabase.getUserById(idToEditUser)
+    
+      if (!userDB) {
+        throw new NotFoundError("Usuário não existe no nosso banco de dados.")
+      }
+
+      if (!name && !email && !password){
+        throw new BadRequestError()
+      }
+
+      const user = new User(
+        userDB.id,
+        userDB.name,
+        userDB.email,
+        userDB.password,
+        userDB.role,
+        userDB.created_at
+      )
+      
+      let hashedPassword
+
+      if (password){
+        hashedPassword = await this.hashManager.hash(password)
+      }
+
+      user.NAME = name || userDB.name
+      user.EMAIL = email || userDB.email
+      user.PASSWORD = hashedPassword || userDB.password
+
+      const updatedUserDB = user.toDBModel()
+      await this.usersDatabase.editUserById(userDB.id, updatedUserDB)
+    
+      const output = {
+        message: "Usuário atualizado com sucesso!",
+      }
+      return output
+    }
+
+    public deleteUserById = async (input: DeleteUserByIdInputDTO):Promise<DeleteUserByIdOutputDTO> => {
+
+      const { idToDelete, token } = input
+
+      const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+
+      if(!payload) {
+        throw new UnauthorizedError()
+      }
+
+      if (payload.role !== USER_ROLES.ADMIN){
+        if (payload.id !== idToDelete) {
+          throw new ForbiddenError("Somente o próprio usuário pode excluir a própria conta. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
+        }
+      }
+      const userDB: UserDB | undefined = await this.usersDatabase.getUserById(idToDelete)
+    
+      if (!userDB) {
+        throw new NotFoundError("Usuário não existe no nosso banco de dados.")
+      }
+
+      await this.usersDatabase.deleteUserById(idToDelete)
+    
+      const output = {
+        message: "Usuário excluído com sucesso!",
+      }
       return output
     }
     

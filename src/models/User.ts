@@ -87,15 +87,23 @@ export enum USER_ROLES {
         }
     }
   
-    public toBusinessModel(): UserModel {
+      public toBusinessModel(): UserModel {
+          return {
+              id: this.id,
+              name: this.name,
+              email: this.email,
+              role: this.role,
+              createdAt: this.createdAt
+          }
+      }
+
+      public toTokenPayload(): TokenPayload {
         return {
-            id: this.id,
-            name: this.name,
-            email: this.email,
-            role: this.role,
-            createdAt: this.createdAt
+          id: this.id,
+          name: this.name,
+          role: this.role
         }
-    }
+      }
 
   }
   
