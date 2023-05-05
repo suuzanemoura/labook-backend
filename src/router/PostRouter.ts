@@ -12,9 +12,11 @@ const postController = new PostController(
     new PostBusiness(
         new PostsDatabase(),
         new IdGenerator(),
-        new TokenManager(),
-        new HashManager()
+        new TokenManager()
     )
 )
 
+postRouter.post("/", postController.createPost)
 postRouter.get("/", postController.getPosts)
+postRouter.put("/:id", postController.editPostById)
+postRouter.delete("/:id", postController.deletePostById)
