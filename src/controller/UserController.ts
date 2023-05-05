@@ -45,7 +45,7 @@ export class UserController{
         })
   
         const output = await this.userBusiness.login(input)
-        res.status(201).send(output)
+        res.status(200).send(output)
 
       } catch (error) {
         console.log(error)
@@ -99,7 +99,7 @@ export class UserController{
         })
   
         const output = await this.userBusiness.editUserById(input)
-        res.status(201).send(output)
+        res.status(200).send(output)
 
       } catch (error) {
         console.log(error)
@@ -122,7 +122,7 @@ export class UserController{
         })
   
         const output = await this.userBusiness.deleteUserById(input)
-        res.status(201).send(output)
+        res.status(200).send(output)
 
       } catch (error) {
         console.log(error)

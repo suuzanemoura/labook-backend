@@ -68,7 +68,7 @@ export class Post {
     public get CREATOR_NAME(): string {
         return this.creatorName;
     }
-
+    
     public set CONTENT(newContent: string) {
         this.content = newContent;
     }

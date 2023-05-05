@@ -1,10 +1,16 @@
-import { Post, PostWithCreatorDB } from "../models/Post";
+import { PostDB, PostWithCreatorDB } from "../models/Post";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class PostsDatabase extends BaseDatabase{
     public static TABLE_POSTS = "posts"
 
-    public async getPostsWithCreator(query: string | undefined){
+    public async insertPost(newPostDB: PostDB): Promise<void> {
+        await BaseDatabase
+          .connection(PostsDatabase.TABLE_POSTS)
+          .insert(newPostDB)
+    }
+
+    public async getPostsWithCreator(query: string | undefined):Promise<PostWithCreatorDB[]>{
 
         if (query) {
         const postsDB:PostWithCreatorDB[] = await BaseDatabase
@@ -25,7 +31,7 @@ export class PostsDatabase extends BaseDatabase{
         return postsDB
 
         } else {
-        const postsDB = await BaseDatabase
+        const postsDB:PostWithCreatorDB[] = await BaseDatabase
             .connection(PostsDatabase.TABLE_POSTS)
             .select(
                 "posts.id",
@@ -42,5 +48,26 @@ export class PostsDatabase extends BaseDatabase{
         return postsDB
         
         }
+    }
+
+    public async getPostById (id: string): Promise<PostDB | undefined> {
+        const userDB: PostDB[] = await BaseDatabase
+          .connection(PostsDatabase.TABLE_POSTS)
+          .where({id: id})
+
+        return userDB[0]
+    }
+
+    public async editPostById (id: string, postDB: PostDB): Promise<void> {
+        await BaseDatabase
+        .connection(PostsDatabase.TABLE_POSTS)
+        .update(postDB)
+        .where({id: id})
+    }
+
+    public async deleteUserById (id: string): Promise<void> {
+        await BaseDatabase
+        .connection(PostsDatabase.TABLE_POSTS)
+        .del().where({id: id})
     }
 }
