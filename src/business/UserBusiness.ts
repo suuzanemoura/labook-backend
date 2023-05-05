@@ -1,7 +1,8 @@
 import { UsersDatabase } from "../database/UsersDatabase"
 import { GetUsersInputDTO, GetUsersOutputDTO } from "../dtos/User/getUsers.dto"
-import { BadRequestError } from "../errors/BadRequestError"
+import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
+import { UnauthorizedError } from "../errors/UnauthorizedError"
 import { TokenPayload, USER_ROLES, User, UserDB, UserModel } from "../models/User"
 import { HashManager } from "../services/HashManager"
 import { IdGenerator } from "../services/IdGenerator"
@@ -21,12 +22,12 @@ export class UserBusiness {
 
       const payload: TokenPayload | null = this.tokenManager.getPayload(token)
 
-      if(payload === null) {
-        throw new BadRequestError("É necessário o preenchimento de token para acessar o recurso.")
+      if(!payload) {
+        throw new UnauthorizedError()
       }
 
       if (payload.role !== USER_ROLES.ADMIN) {
-        throw new BadRequestError("Somente ADMINS podem acessar esse recurso.")
+        throw new ForbiddenError("Somente ADMINS podem acessar esse recurso.")
       }
 
       const usersDB: UserDB[] = await this.usersDatabase.getUsers(query)
