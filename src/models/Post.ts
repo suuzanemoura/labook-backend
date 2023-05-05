@@ -1,16 +1,15 @@
 export interface PostDB {
     id: string,
-    creator_id: string,
     content: string,
     likes: number,
     dislikes: number,
     created_at: string,
-    upload_at: string
+    updated_at: string,
+    creator_id: string,
 }
 
-export interface Creator {
-    id: string,
-    name: string
+export interface PostWithCreatorDB extends PostDB {
+    creator_name: string
 }
 
 export interface PostModel {
@@ -19,9 +18,12 @@ export interface PostModel {
     likes: number,
     dislikes: number,
     createdAt: string,
-    uploadAt: string,
-    creator: Creator
-  }
+    updatedAt: string,
+    creator: {
+        id: string,
+        name: string
+    }
+}
 
 export class Post {
     constructor(
@@ -30,7 +32,7 @@ export class Post {
       private likes: number,
       private dislikes: number,
       private createdAt: string,
-      private uploadAt: string,
+      private updatedAt: string,
       private creatorId: string,
       private creatorName: string,
     ) {}
@@ -55,8 +57,8 @@ export class Post {
         return this.createdAt
     }
 
-    public get UPLOAD_AT(): string {
-        return this.uploadAt
+    public get UPDATED_AT(): string {
+        return this.updatedAt
     }
 
     public get CREATOR_ID(): string {
@@ -79,8 +81,24 @@ export class Post {
         this.dislikes = newDislikes;
     }
 
-    public set UPLOAD_AT(newUploadAt: string) {
-        this.uploadAt = newUploadAt;
+    public set UPDATED_AT(newUpdatedAt: string) {
+        this.updatedAt = newUpdatedAt;
+    }
+
+    public addLike() {
+        this.likes += 1
+    }
+
+    public removeLike() {
+        this.likes -= 1
+    }
+
+    public addDislike() {
+        this.dislikes += 1
+    }
+
+    public removeDislike() {
+        this.dislikes -= 1
     }
 
     public toDBModel(): PostDB {
@@ -91,7 +109,7 @@ export class Post {
             likes: this.likes,
             dislikes: this.dislikes,
             created_at: this.createdAt,
-            upload_at: this.uploadAt
+            updated_at: this.updatedAt
         }
     }
   
@@ -102,7 +120,7 @@ export class Post {
             likes: this.likes,
             dislikes: this.dislikes,
             createdAt: this.createdAt,
-            uploadAt: this.uploadAt,
+            updatedAt: this.updatedAt,
             creator: {
                 id: this.creatorId,
                 name: this.creatorName
