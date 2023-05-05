@@ -1,5 +1,3 @@
-import { Creator } from "./Post";
-
 export enum USER_ROLES {
     NORMAL = "NORMAL",
     ADMIN = "ADMIN"
@@ -98,13 +96,7 @@ export enum USER_ROLES {
             createdAt: this.createdAt
         }
     }
-  
-    public toCreatorModel():Creator {
-      return {
-          id: this.id,
-          name: this.name
-      }
-  }
+
   }
   
     

@@ -18,7 +18,7 @@ CREATE TABLE
         likes INTEGER DEFAULT(0) NOT NULL,
         dislikes INTEGER DEFAULT(0) NOT NULL,
         created_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
-        upload_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
+        updated_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
         FOREIGN KEY (creator_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE
     );
 
@@ -34,6 +34,18 @@ CREATE TABLE
 SELECT * FROM users;
 
 SELECT * FROM posts;
+
+SELECT
+    posts.id,
+    posts.creator_id,
+    posts.content,
+    posts.likes,
+    posts.dislikes,
+    posts.created_at,
+    posts.updated_at,
+    users.name AS creator_name
+FROM posts
+    INNER JOIN users ON users.id = posts.creator_id;
 
 SELECT * FROM likes_dislikes;
 
