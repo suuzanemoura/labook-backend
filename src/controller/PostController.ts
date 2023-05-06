@@ -6,6 +6,7 @@ import { ZodError } from "zod"
 import { CreatePostInputDTO, CreatePostOutputDTO, CreatePostSchema } from "../dtos/Post/createPost.dto"
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO, EditPostByIdSchema } from "../dtos/Post/editPostById.dto"
 import { DeletePostByIdSchema } from "../dtos/Post/deletePostById.dto"
+import { LikeOrDislikePostSchema } from "../dtos/Post/likeOrDislikePost.dto"
 
 export class PostController{
     constructor(
@@ -108,5 +109,29 @@ export class PostController{
             res.status(500).send("Erro inesperado.")
           }
         }
+    }
+
+    public likeOrDislikePost = async (req: Request, res: Response) => {
+      try {
+        const input = LikeOrDislikePostSchema.parse({
+          postId: req.params.id,
+          token: req.headers.authorization,
+          like: req.body.like
+        })
+  
+        const output = await this.postBusiness.likeOrDislikePost(input)
+        res.status(200).send(output)
+
+      } catch (error) {
+        console.log(error)
+  
+        if (error instanceof ZodError) {
+          res.status(400).send(error.issues)
+        } else if (error instanceof BaseError) {
+          res.status(error.statusCode).send(error.message)
+        } else {
+          res.status(500).send("Erro inesperado.")
+        }
       }
+  }
 }
