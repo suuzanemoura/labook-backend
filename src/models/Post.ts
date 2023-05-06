@@ -25,6 +25,17 @@ export interface PostModel {
     }
 }
 
+export interface LikeDislikeDB {
+    user_id: string,
+    post_id: string,
+    like: number
+}
+  
+export enum POST_LIKE {
+    ALREADY_LIKED = "ALREADY LIKED",
+    ALREADY_DISLIKED = "ALREADY DISLIKED"
+}  
+
 export class Post {
     constructor(
       private id: string,
@@ -85,19 +96,19 @@ export class Post {
         this.updatedAt = newUpdatedAt;
     }
 
-    public addLike() {
+    public addLike():void {
         this.likes += 1
     }
 
-    public removeLike() {
+    public removeLike():void {
         this.likes -= 1
     }
 
-    public addDislike() {
+    public addDislike():void {
         this.dislikes += 1
     }
 
-    public removeDislike() {
+    public removeDislike():void {
         this.dislikes -= 1
     }
 

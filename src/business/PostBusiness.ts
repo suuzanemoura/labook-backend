@@ -3,10 +3,12 @@ import { CreatePostInputDTO, CreatePostOutputDTO } from "../dtos/Post/createPost
 import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO } from "../dtos/Post/deletePostById.dto"
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO } from "../dtos/Post/editPostById.dto"
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
+import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO } from "../dtos/Post/likeOrDislikePost.dto"
+import { ConflictError } from "../errors/ConflictError"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
-import { Post, PostDB, PostModel, PostWithCreatorDB } from "../models/Post"
+import { LikeDislikeDB, POST_LIKE, Post, PostDB, PostModel, PostWithCreatorDB } from "../models/Post"
 import { TokenPayload, USER_ROLES } from "../models/User"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
@@ -119,7 +121,7 @@ export class PostBusiness {
         post.UPDATED_AT = new Date().toISOString()
 
         const updatedPostDB:PostDB = post.toDBModel()
-        await this.postsDatabase.editPostById(postDB.id, updatedPostDB)
+        await this.postsDatabase.updatePostById(postDB.id, updatedPostDB)
     
         const output = {
         message: "Post atualizado com sucesso!",
@@ -155,5 +157,66 @@ export class PostBusiness {
         message: "Post excluído com sucesso!",
         }
         return output
+    }
+
+    public likeOrDislikePost = async (input: LikeOrDislikePostInputDTO): Promise<LikeOrDislikePostOutputDTO> => {
+        const { postId, token, like } = input
+
+        const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+
+        if(!payload) {
+            throw new UnauthorizedError()
+        }
+
+        const postDBWithCreatorName = await this.postsDatabase.getPostWithCreatorById(postId)
+
+        if (!postDBWithCreatorName){
+            throw new NotFoundError("Post com essa Id não encontrado.")
+        }
+
+        if (payload.id === postDBWithCreatorName.creator_id){
+            throw new ForbiddenError("Não é possível interagir com seu próprio post.")
+        }
+
+        const post = new Post(
+            postDBWithCreatorName.id,
+            postDBWithCreatorName.content,
+            postDBWithCreatorName.likes,
+            postDBWithCreatorName.dislikes,
+            postDBWithCreatorName.created_at,
+            postDBWithCreatorName.updated_at,
+            postDBWithCreatorName.creator_id,
+            postDBWithCreatorName.creator_name
+        )
+
+        const likeSQLite: number = like ? 1 : 0
+
+        const likeDislikeDB:LikeDislikeDB = {
+            user_id: payload.id,
+            post_id:postId,
+            like: likeSQLite
+        }
+
+        const likeDislikeExists = await this.postsDatabase.getLikeDislike(likeDislikeDB)
+
+        likeDislikeExists === POST_LIKE.ALREADY_LIKED && like ? 
+        (await this.postsDatabase.removeLikeDislike(likeDislikeDB), post.removeLike())
+        : likeDislikeExists === POST_LIKE.ALREADY_LIKED && !like ?
+        (await this.postsDatabase.updateLikeDislike(likeDislikeDB), post.removeLike(), post.addDislike())
+        : likeDislikeExists === POST_LIKE.ALREADY_DISLIKED && !like ?
+        (await this.postsDatabase.removeLikeDislike(likeDislikeDB), post.removeDislike())
+        : likeDislikeExists === POST_LIKE.ALREADY_DISLIKED && like ?
+        (await this.postsDatabase.updateLikeDislike(likeDislikeDB), post.removeDislike(), post.addLike())
+        : likeDislikeExists === undefined && like ?
+        (await this.postsDatabase.insertLikeDislike(likeDislikeDB), post.addLike())
+        : (await this.postsDatabase.insertLikeDislike(likeDislikeDB), post.addDislike())
+
+        const updatedPostDB = post.toDBModel()
+        
+        await this.postsDatabase.updatePostById(postId, updatedPostDB)
+
+        const output: LikeOrDislikePostOutputDTO = undefined
+        return output
+
     }
 }
