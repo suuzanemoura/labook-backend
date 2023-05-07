@@ -1,10 +1,32 @@
-# Projeto Labook
+# Labook - BackEnd
 
-O Labook é uma rede social com o objetivo de promover a conexão e interação entre pessoas. Quem se cadastrar no aplicativo poderá criar e curtir publicações.
+![wireframe labook](https://user-images.githubusercontent.com/29845719/216036534-2b3dfb48-7782-411a-bffd-36245b78594e.png)
 
-Agora que temos as bases de criação de APIs e banco de dados, o próximo nível é a implementação de segurança e códigos mais escaláveis. Veremos durante o prazo de entrega desse projeto inúmeros conceitos e formas de desenvolvimento seguindo padrões de design e arquitetura, e seu desafio será unir as funcionalidades com as boas práticas de código.
+## Introdução
 
-# Conteúdos abordados
+Labook é uma API REST de uma rede social onde é possível fazer requisições de criação, leitura, atualização e exclusão dos usuários e posts seguindo o sistema CRUD com autenticação em jwt token. Também é possível interagir com os posts existentes, havendo a possibilidade de dar like e dislike. Rotas protegidas, seguindo o padrão de Arquitetura em Camadas e Programação Orientada a Objetos (POO). Implementada a um banco de dados SQLite.
+
+## Documentação
+
+- Acesse a documentação da API pelo postman: [Clique aqui!](https://documenter.getpostman.com/view/25826545/2s93eYUBv6)
+
+## Sobre o Projeto
+
+### Instalação
+
+```bash
+# Instale todas as dependências
+$ npm install
+
+# Execute o projeto
+$ npm run dev
+
+# A aplicação será iniciada na porta 3003
+
+# Use algum API Client para realizar as requisições
+```
+
+### Tecnologias
 
 - NodeJS
 - Typescript
@@ -15,213 +37,45 @@ Agora que temos as bases de criação de APIs e banco de dados, o próximo níve
 - Arquitetura em camadas
 - Geração de UUID
 - Geração de hashes
-- Autenticação e autorização
-- Roteamento
-- Postman
+- Autenticação e autorização (JWT)
 
-# Banco de dados
+### Endpoints
 
-![projeto-labook (2)](https://user-images.githubusercontent.com/29845719/216036534-2b3dfb48-7782-411a-bffd-36245b78594e.png)
+- **Users:**
+  - Create user
+    - Criação de um novo usuário.
+  - Get users
+    - Retorna todos os usuários cadastrados, apenas ADMINs tem acess a informação.
+  - Edit user by id
+    - Atualização de uma ou mais informações de um usuário através do seu ID.
+  - Delete user by id
+    - Exclusão de um usuário cadastrado.
+  - **Post:**
+    - Create post
+      - Criação de um novo post.
+    - Get posts
+      - Retorna todos os posts criados.
+    - Edit product by id
+      - Atualização do conteúdo de um post através do seu ID.
+    - Delete product by id
+      - Exclusão de um post criado.
+    - Like or Dislike
+      - É possível dar like ou dislike nos posts criados.
 
-https://dbdiagram.io/d/63d16443296d97641d7c1ae1
+### Regras de negócio
 
-# Lista de requisitos
+- O usuário não deve poder se cadastrar com um e-mail duplicado;
+- O post sempre deverá ter um usuário;
+- Somente ADMINs podem ter acesso a informações de usuários;
+- Somente é possível visualizar os posts usuário já cadastrados;
+- O usuário não deve poder dar like/dislike no próprio post;
+- Caso usuário dê um like em um post que já tenha dado like, o like é desfeito (deleta o item da tabela);
+- Caso usuário dê um dislike em um post que já tenha dado dislike, o dislike é desfeito (deleta o item da tabela);
+- Caso usuário dê um like em um post que tenha dado dislike, o like sobrescreve o dislike.
+- Caso usuário dê um dislike em um post que tenha dado like, o dislike sobrescreve o like.
 
-- Documentação Postman de todos os endpoints (obrigatória para correção)
+## Contato
 
-- Endpoints
+E-mail: suuzanemoura@gmail.com
 
-  - [ ] signup
-  - [ ] login
-  - [ ] get posts
-  - [ ] create post
-  - [ ] edit post
-  - [ ] delete post
-  - [ ] like / dislike post
-
-- Autenticação e autorização
-
-  - [ ] identificação UUID
-  - [ ] senhas hasheadas com Bcrypt
-  - [ ] tokens JWT
-
-- Código
-
-  - [ ] POO
-  - [ ] Arquitetura em camadas
-  - [ ] Roteadores no Express
-
-- README.md
-
-# Exemplos de requisição
-
-## Signup
-
-Endpoint público utilizado para cadastro. Devolve um token jwt.
-
-```typescript
-// request POST /users/signup
-// body JSON
-{
-  "name": "Beltrana",
-  "email": "beltrana@email.com",
-  "password": "beltrana00"
-}
-
-// response
-// status 201 CREATED
-{
-  token: "um token jwt"
-}
-```
-
-## Login
-
-Endpoint público utilizado para login. Devolve um token jwt.
-
-```typescript
-// request POST /users/login
-// body JSON
-{
-  "email": "beltrana@email.com",
-  "password": "beltrana00"
-}
-
-// response
-// status 200 OK
-{
-  token: "um token jwt"
-}
-```
-
-## Get posts
-
-Endpoint protegido, requer um token jwt para acessá-lo.
-
-```typescript
-// request GET /posts
-// headers.authorization = "token jwt"
-
-// response
-// status 200 OK
-[
-    {
-        "id": "uma uuid v4",
-        "content": "Hoje vou estudar POO!",
-        "likes": 2,
-        "dislikes" 1,
-        "createdAt": "2023-01-20T12:11:47:000Z"
-        "updatedAt": "2023-01-20T12:11:47:000Z"
-        "creator": {
-            "id": "uma uuid v4",
-            "name": "Fulano"
-        }
-    },
-    {
-        "id": "uma uuid v4",
-        "content": "kkkkkkkkkrying",
-        "likes": 0,
-        "dislikes" 0,
-        "createdAt": "2023-01-20T15:41:12:000Z"
-        "updatedAt": "2023-01-20T15:49:55:000Z"
-        "creator": {
-            "id": "uma uuid v4",
-            "name": "Ciclana"
-        }
-    }
-]
-```
-
-## Create post
-
-Endpoint protegido, requer um token jwt para acessá-lo.
-
-```typescript
-// request POST /posts
-// headers.authorization = "token jwt"
-// body JSON
-{
-    "content": "Partiu happy hour!"
-}
-
-// response
-// status 201 CREATED
-```
-
-## Edit post
-
-Endpoint protegido, requer um token jwt para acessá-lo.<br>
-Só quem criou o post pode editá-lo e somente o conteúdo pode ser editado.
-
-```typescript
-// request PUT /posts/:id
-// headers.authorization = "token jwt"
-// body JSON
-{
-    "content": "Partiu happy hour lá no point de sempre!"
-}
-
-// response
-// status 200 OK
-```
-
-## Delete post
-
-Endpoint protegido, requer um token jwt para acessá-lo.<br>
-Só quem criou o post pode deletá-lo. Admins podem deletar o post de qualquer pessoa.
-
-```typescript
-// request DELETE /posts/:id
-// headers.authorization = "token jwt"
-
-// response
-// status 200 OK
-```
-
-## Like or dislike post (mesmo endpoint faz as duas coisas)
-
-Endpoint protegido, requer um token jwt para acessá-lo.<br>
-Quem criou o post não pode dar like ou dislike no mesmo.<br><br>
-Caso dê um like em um post que já tenha dado like, o like é desfeito.<br>
-Caso dê um dislike em um post que já tenha dado dislike, o dislike é desfeito.<br><br>
-Caso dê um like em um post que tenha dado dislike, o like sobrescreve o dislike.<br>
-Caso dê um dislike em um post que tenha dado like, o dislike sobrescreve o like.
-
-### Like (funcionalidade 1)
-
-```typescript
-// request PUT /posts/:id/like
-// headers.authorization = "token jwt"
-// body JSON
-{
-    "like": true
-}
-
-// response
-// status 200 OK
-```
-
-### Dislike (funcionalidade 2)
-
-```typescript
-// request PUT /posts/:id/like
-// headers.authorization = "token jwt"
-// body JSON
-{
-    "like": false
-}
-
-// response
-// status 200 OK
-```
-
-### Para entender a tabela likes_dislikes
-
-- no SQLite, lógicas booleanas devem ser controladas via 0 e 1 (INTEGER)
-- quando like valer 1 na tabela é porque a pessoa deu like no post
-  - na requisição like é true
-- quando like valer 0 na tabela é porque a pessoa deu dislike no post
-  - na requisição like é false
-- caso não exista um registro na tabela de relação, é porque a pessoa não deu like nem dislike
-- caso dê like em um post que já tenha dado like, o like é removido (deleta o item da tabela)
-- caso dê dislike em um post que já tenha dado dislike, o dislike é removido (deleta o item da tabela)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/suuzanemoura/)
