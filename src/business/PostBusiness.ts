@@ -4,7 +4,7 @@ import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO } from "../dtos/Post/de
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO } from "../dtos/Post/editPostById.dto"
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
 import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO } from "../dtos/Post/likeOrDislikePost.dto"
-import { ConflictError } from "../errors/ConflictError"
+import { BadRequestError } from "../errors/BadRequestError"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
@@ -15,12 +15,13 @@ import { TokenManager } from "../services/TokenManager"
 
 export class PostBusiness {
     constructor (
-        private postsDatabase: PostsDatabase,
-        private idGenerator: IdGenerator,
-        private tokenManager: TokenManager
+    private postsDatabase: PostsDatabase,
+    private idGenerator: IdGenerator,
+    private tokenManager: TokenManager
     ) {}
 
     public createPost = async (input: CreatePostInputDTO): Promise<CreatePostOutputDTO> => {
+
         const { content, token } = input
 
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
@@ -29,7 +30,7 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const id = this.idGenerator.generate()
+        const id:string = this.idGenerator.generate()
 
         const newPost = new Post (
             id,
@@ -47,9 +48,9 @@ export class PostBusiness {
 
         const output: CreatePostOutputDTO = {
             message: "Post criado com sucesso!"
-          }
+        }
       
-          return output
+        return output
     }
 
     public getPosts = async (input: GetPostsInputDTO):Promise<GetPostsOutputDTO> => {
@@ -65,6 +66,7 @@ export class PostBusiness {
         const postsDB:PostWithCreatorDB[] = await this.postsDatabase.getPostsWithCreator(query)
         
         const posts:PostModel[] = postsDB.map((postDB) => { 
+
             const post = new Post(
                 postDB.id,
                 postDB.content,
@@ -75,11 +77,14 @@ export class PostBusiness {
                 postDB.creator_id,
                 postDB.creator_name
             )
+
             return post.toBusinessModel()
 
         })
 
-        if(!posts.length) throw new NotFoundError("Nenhum post foi cadastrado no banco de dados.")
+        if(!posts.length){
+            throw new NotFoundError("Nenhum post foi cadastrado no banco de dados.")
+        }
     
         const output: GetPostsOutputDTO = posts
         return output
@@ -97,7 +102,7 @@ export class PostBusiness {
         const postDB: PostDB | undefined = await this.postsDatabase.getPostById(idToEditPost)
     
         if (!postDB) {
-        throw new NotFoundError("Post não encontrado.")
+            throw new NotFoundError("Post não encontrado.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -107,14 +112,14 @@ export class PostBusiness {
         }
     
         const post = new Post(
-        postDB.id,
-        postDB.content,
-        postDB.likes,
-        postDB.dislikes,
-        postDB.created_at,
-        postDB.updated_at,
-        payload.id,
-        payload.name
+            postDB.id,
+            postDB.content,
+            postDB.likes,
+            postDB.dislikes,
+            postDB.created_at,
+            postDB.updated_at,
+            payload.id,
+            payload.name
         )
 
         post.CONTENT = content
@@ -123,7 +128,7 @@ export class PostBusiness {
         const updatedPostDB:PostDB = post.toDBModel()
         await this.postsDatabase.updatePostById(postDB.id, updatedPostDB)
     
-        const output = {
+        const output:EditPostByIdOutputDTO = {
         message: "Post atualizado com sucesso!",
         }
 
@@ -131,6 +136,7 @@ export class PostBusiness {
     }
     
     public deletePostById = async (input: DeletePostByIdInputDTO): Promise<DeletePostByIdOutputDTO> => {
+        
         const { idToDelete, token } = input
 
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
@@ -142,7 +148,7 @@ export class PostBusiness {
         const postDB: PostDB | undefined = await this.postsDatabase.getPostById(idToDelete)
         
         if (!postDB) {
-        throw new NotFoundError("Post não encontrado.")
+            throw new NotFoundError("Post não encontrado.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -153,13 +159,15 @@ export class PostBusiness {
         
         await this.postsDatabase.deleteUserById(idToDelete)
     
-        const output = {
-        message: "Post excluído com sucesso!",
+        const output:DeletePostByIdOutputDTO = {
+            message: "Post excluído com sucesso!",
         }
+
         return output
     }
 
     public likeOrDislikePost = async (input: LikeOrDislikePostInputDTO): Promise<LikeOrDislikePostOutputDTO> => {
+
         const { postId, token, like } = input
 
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
@@ -168,10 +176,10 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postDBWithCreatorName = await this.postsDatabase.getPostWithCreatorById(postId)
+        const postDBWithCreatorName:PostWithCreatorDB | undefined = await this.postsDatabase.getPostWithCreatorById(postId)
 
         if (!postDBWithCreatorName){
-            throw new NotFoundError("Post com essa Id não encontrado.")
+            throw new NotFoundError("Post com esse id não encontrado.")
         }
 
         if (payload.id === postDBWithCreatorName.creator_id){
@@ -197,7 +205,7 @@ export class PostBusiness {
             like: likeSQLite
         }
 
-        const likeDislikeExists = await this.postsDatabase.getLikeDislike(likeDislikeDB)
+        const likeDislikeExists:POST_LIKE | undefined = await this.postsDatabase.getLikeDislike(likeDislikeDB)
 
         likeDislikeExists === POST_LIKE.ALREADY_LIKED && like ? 
         (await this.postsDatabase.removeLikeDislike(likeDislikeDB), post.removeLike())
@@ -211,7 +219,7 @@ export class PostBusiness {
         (await this.postsDatabase.insertLikeDislike(likeDislikeDB), post.addLike())
         : (await this.postsDatabase.insertLikeDislike(likeDislikeDB), post.addDislike())
 
-        const updatedPostDB = post.toDBModel()
+        const updatedPostDB:PostDB = post.toDBModel()
         
         await this.postsDatabase.updatePostById(postId, updatedPostDB)
 

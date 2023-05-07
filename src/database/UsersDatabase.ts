@@ -13,34 +13,34 @@ export class UsersDatabase extends BaseDatabase{
     public async getUsers(query: string | undefined): Promise<UserDB[]> {
 
         if (query) {
-        const usersDB: UserDB[] = await BaseDatabase
-            .connection(UsersDatabase.TABLE_USERS)
-            .where("name", "LIKE", `%${query}%`)
+            const result: UserDB[] = await BaseDatabase
+                .connection(UsersDatabase.TABLE_USERS)
+                .where("name", "LIKE", `%${query}%`)
 
-        return usersDB
+            return result
         } else {
-        const usersDB: UserDB[] = await BaseDatabase
-            .connection(UsersDatabase.TABLE_USERS)
+            const result: UserDB[] = await BaseDatabase
+                .connection(UsersDatabase.TABLE_USERS)
 
-        return usersDB
+            return result
         }
 
     }
 
     public async getUserByEmail(email: string): Promise<UserDB | undefined> {
-        const userDB: UserDB[] = await BaseDatabase
+        const [result]: UserDB[] = await BaseDatabase
           .connection(UsersDatabase.TABLE_USERS)
           .where({email: email})
 
-        return userDB[0]
+        return result
     }
 
     public async getUserById (id: string): Promise<UserDB | undefined> {
-        const userDB: UserDB[] = await BaseDatabase
+        const [result]: UserDB[] = await BaseDatabase
           .connection(UsersDatabase.TABLE_USERS)
           .where({id: id})
 
-        return userDB[0]
+        return result
     }
 
     public async editUserById (id: string, userDB: UserDB): Promise<void> {
