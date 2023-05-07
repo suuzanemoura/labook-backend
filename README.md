@@ -50,17 +50,17 @@ $ npm run dev
     - Atualização de uma ou mais informações de um usuário através do seu ID.
   - Delete user by id
     - Exclusão de um usuário cadastrado.
-  - **Post:**
-    - Create post
-      - Criação de um novo post.
-    - Get posts
-      - Retorna todos os posts criados.
-    - Edit product by id
-      - Atualização do conteúdo de um post através do seu ID.
-    - Delete product by id
-      - Exclusão de um post criado.
-    - Like or Dislike
-      - É possível dar like ou dislike nos posts criados.
+- **Post:**
+  - Create post
+    - Criação de um novo post.
+  - Get posts
+    - Retorna todos os posts criados.
+  - Edit product by id
+    - Atualização do conteúdo de um post através do seu ID.
+  - Delete product by id
+    - Exclusão de um post criado.
+  - Like or Dislike
+    - É possível dar like ou dislike nos posts criados.
 
 ### Regras de negócio
 
