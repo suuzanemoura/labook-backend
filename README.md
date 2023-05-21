@@ -55,9 +55,9 @@ $ npm run dev
     - Criação de um novo post.
   - Get posts
     - Retorna todos os posts criados.
-  - Edit product by id
+  - Edit post by id
     - Atualização do conteúdo de um post através do seu ID.
-  - Delete product by id
+  - Delete post by id
     - Exclusão de um post criado.
   - Like or Dislike
     - É possível dar like ou dislike nos posts criados.
@@ -67,7 +67,7 @@ $ npm run dev
 - O usuário não deve poder se cadastrar com um e-mail duplicado;
 - O post sempre deverá ter um usuário;
 - Somente ADMINs podem ter acesso a informações de usuários;
-- Somente é possível visualizar os posts usuário já cadastrados;
+- Somente usuários já cadastrados podem visualizar os posts criados;
 - O usuário não deve poder dar like/dislike no próprio post;
 - Caso usuário dê um like em um post que já tenha dado like, o like é desfeito (deleta o item da tabela);
 - Caso usuário dê um dislike em um post que já tenha dado dislike, o dislike é desfeito (deleta o item da tabela);

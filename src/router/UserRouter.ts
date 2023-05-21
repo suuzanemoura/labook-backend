@@ -5,12 +5,14 @@ import { UsersDatabase } from '../database/UsersDatabase'
 import { IdGenerator } from '../services/IdGenerator'
 import { TokenManager } from '../services/TokenManager'
 import { HashManager } from '../services/HashManager'
+import { PostsDatabase } from '../database/PostsDatabase'
 
 export const userRouter = express.Router()
 
 const userController = new UserController(
     new UserBusiness(
         new UsersDatabase(),
+        new PostsDatabase(),
         new IdGenerator(),
         new TokenManager(),
         new HashManager()

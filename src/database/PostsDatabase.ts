@@ -60,11 +60,11 @@ export class PostsDatabase extends BaseDatabase{
         return result as PostDB | undefined
     }
 
-    public async updatePostById (id: string, postDB: PostDB): Promise<void> {
+    public async updatePostById (postDB: PostDB): Promise<void> {
         await BaseDatabase
         .connection(PostsDatabase.TABLE_POSTS)
         .update(postDB)
-        .where({id: id})
+        .where({id: postDB.id})
     }
 
     public async deleteUserById (id: string): Promise<void> {
@@ -103,6 +103,17 @@ export class PostsDatabase extends BaseDatabase{
         })
 
         return result === undefined ?  undefined : result && result.like === 1 ? POST_LIKE.ALREADY_LIKED : POST_LIKE.ALREADY_DISLIKED
+    }
+
+    public async getLikeDislikeFromPostByUserId (id: string):Promise<LikeDislikeDB[]> {
+
+        const result: LikeDislikeDB[] = await BaseDatabase
+        .connection(PostsDatabase.TABLE_LIKES_DISLIKES)
+        .where({
+            user_id: id
+        })
+
+        return result as LikeDislikeDB[]
     }
 
     public removeLikeDislike = async (likeDislikeDB: LikeDislikeDB): Promise<void> => {

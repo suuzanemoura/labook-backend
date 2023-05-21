@@ -4,7 +4,6 @@ import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO } from "../dtos/Post/de
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO } from "../dtos/Post/editPostById.dto"
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
 import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO } from "../dtos/Post/likeOrDislikePost.dto"
-import { BadRequestError } from "../errors/BadRequestError"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
@@ -126,7 +125,7 @@ export class PostBusiness {
         post.UPDATED_AT = new Date().toISOString()
 
         const updatedPostDB:PostDB = post.toDBModel()
-        await this.postsDatabase.updatePostById(postDB.id, updatedPostDB)
+        await this.postsDatabase.updatePostById(updatedPostDB)
     
         const output:EditPostByIdOutputDTO = {
         message: "Post atualizado com sucesso!",
@@ -221,7 +220,7 @@ export class PostBusiness {
 
         const updatedPostDB:PostDB = post.toDBModel()
         
-        await this.postsDatabase.updatePostById(postId, updatedPostDB)
+        await this.postsDatabase.updatePostById(updatedPostDB)
 
         const output: LikeOrDislikePostOutputDTO = undefined
         return output

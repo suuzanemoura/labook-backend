@@ -1,3 +1,4 @@
+import { PostsDatabase } from "../database/PostsDatabase"
 import { UsersDatabase } from "../database/UsersDatabase"
 import { DeleteUserByIdInputDTO, DeleteUserByIdOutputDTO } from "../dtos/User/deleteUserById.dto"
 import { EditUserByIdInputDTO, EditUserByIdOutputDTO } from "../dtos/User/editUserById.dto"
@@ -9,6 +10,9 @@ import { ConflictError } from "../errors/ConflictError"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
+import { Post } from "../models/Post"
+import { PostDB } from "../models/Post"
+import { LikeDislikeDB, PostWithCreatorDB } from "../models/Post"
 import { TokenPayload, USER_ROLES, User, UserDB, UserModel } from "../models/User"
 import { HashManager } from "../services/HashManager"
 import { IdGenerator } from "../services/IdGenerator"
@@ -17,6 +21,7 @@ import { TokenManager } from "../services/TokenManager"
 export class UserBusiness {
   constructor (
     private usersDatabase: UsersDatabase,
+    private postsDatabase: PostsDatabase,
     private idGenerator: IdGenerator,
     private tokenManager: TokenManager,
     private hashManager: HashManager
@@ -204,7 +209,40 @@ export class UserBusiness {
     const userDB: UserDB | undefined = await this.usersDatabase.getUserById(idToDelete)
   
     if (!userDB) {
-      throw new NotFoundError("Usuário não existe no nosso banco de dados.")
+      throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
+    }
+
+    const likeOrDislikeOnPostsExists: LikeDislikeDB[] = await this.postsDatabase.getLikeDislikeFromPostByUserId(idToDelete)
+
+    if (likeOrDislikeOnPostsExists.length){
+
+      likeOrDislikeOnPostsExists.map(async (likeOrDislikeOnPostDB) => {
+
+        const postDB:PostWithCreatorDB| undefined = await this.postsDatabase.getPostWithCreatorById(likeOrDislikeOnPostDB.post_id)
+
+        if (postDB){
+
+          const post = new Post(
+            postDB.id,
+            postDB.content,
+            postDB.likes,
+            postDB.dislikes,
+            postDB.created_at,
+            postDB.updated_at,
+            postDB.creator_id,
+            postDB.creator_name
+          )
+  
+          likeOrDislikeOnPostDB.like === 1 ? post.removeLike() : post.removeDislike()
+  
+          const updatedPostDB:PostDB = post.toDBModel()
+  
+          await this.postsDatabase.updatePostById(updatedPostDB)
+
+        }
+        
+      })
+
     }
 
     await this.usersDatabase.deleteUserById(idToDelete)
