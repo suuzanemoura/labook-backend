@@ -74,6 +74,10 @@ $ npm run dev
 - Caso usuário dê um like em um post que tenha dado dislike, o like sobrescreve o dislike.
 - Caso usuário dê um dislike em um post que tenha dado like, o dislike sobrescreve o like.
 
+### Status do projeto
+
+- Concluído ⏳
+
 ## Contato
 
 E-mail: suuzanemoura@gmail.com
