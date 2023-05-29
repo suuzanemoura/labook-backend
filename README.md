@@ -1,10 +1,10 @@
 # Labook - BackEnd
 
-![wireframe labook](https://user-images.githubusercontent.com/29845719/216036534-2b3dfb48-7782-411a-bffd-36245b78594e.png)
-
 ## Introdução
 
 Labook é uma API REST de uma rede social onde é possível fazer requisições de criação, leitura, atualização e exclusão dos usuários e posts seguindo o sistema CRUD com autenticação em jwt token. Também é possível interagir com os posts existentes, havendo a possibilidade de dar like e dislike. Rotas protegidas, seguindo o padrão de Arquitetura em Camadas e Programação Orientada a Objetos (POO). Implementada a um banco de dados SQLite.
+
+![wireframe labook](https://user-images.githubusercontent.com/29845719/216036534-2b3dfb48-7782-411a-bffd-36245b78594e.png)
 
 ## Documentação
 
