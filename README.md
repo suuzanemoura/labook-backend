@@ -45,7 +45,7 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 
 ## Destaques do Projeto
 
--- **Arquitetura modular:** Estrutura em camadas, facilitando manutenção e escalabilidade.
+- **Arquitetura modular:** Estrutura em camadas, facilitando manutenção e escalabilidade.
 - **Validações de regras de negócio:** Prevenção de e-mails duplicados e restrição de ações indevidas.
 - **Autenticação e autorização robustas:** Implementadas com JWT.
 - **Scripts claros:** Para inicialização e configuração.
