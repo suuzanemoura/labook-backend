@@ -1,85 +1,80 @@
-# Labook - BackEnd
-
-## Introdução
-
-Labook é uma API REST de uma rede social onde é possível fazer requisições de criação, leitura, atualização e exclusão dos usuários e posts seguindo o sistema CRUD com autenticação em jwt token. Também é possível interagir com os posts existentes, havendo a possibilidade de dar like e dislike. Rotas protegidas, seguindo o padrão de Arquitetura em Camadas e Programação Orientada a Objetos (POO). Implementada a um banco de dados SQLite.
+# Labook - Backend
 
 ![wireframe labook](https://user-images.githubusercontent.com/29845719/216036534-2b3dfb48-7782-411a-bffd-36245b78594e.png)
 
+## Introdução
+
+**Labook** é uma **API REST** de rede social com **autenticação JWT**. Permite criar, ler, atualizar e excluir usuários e posts (CRUD), além de interagir com posts existentes por meio de curtidas e descurtidas. O projeto segue o padrão de **Arquitetura em Camadas** e **Programação Orientada a Objetos (POO)**, utilizando banco de dados SQLite.
+
 ## Documentação
 
-- Acesse a documentação da API pelo postman: [Clique aqui!](https://documenter.getpostman.com/view/25826545/2s93eYUBv6)
+- Acesse a documentação da API no Postman: [Clique aqui](https://documenter.getpostman.com/view/25826545/2s93eYUBv6)
 
 ## Sobre o Projeto
 
 ### Instalação
 
 ```bash
+# Clone o repositório e navegue até a pasta
+
 # Instale todas as dependências
 $ npm install
 
-# Execute o projeto
+ # Inicie o servidor em modo de desenvolvimento
 $ npm run dev
 
-# A aplicação será iniciada na porta 3003
-
-# Use algum API Client para realizar as requisições
+# A aplicação será executada na porta 3003.
 ```
+> ⚠️ **Dica:** Use algum API Client (Postman, Insomnia, Thunder Client) para testar as requisições.
+
 
 ### Tecnologias
 
-- NodeJS
-- Typescript
-- Express
-- SQL e SQLite
-- Knex
-- POO
-- Arquitetura em camadas
-- Geração de UUID
-- Geração de hashes
-- Autenticação e autorização (JWT)
+O projeto foi desenvolvido com as seguintes tecnologias:
 
-### Endpoints
+- **Node.js**
+- **TypeScript**
+- **Express**
+- **SQLite & SQL**
+- **Knex**
+- **UUID**
+- **Bcrypt (hash de senhas)**
+- **JWT (autenticação e autorização)**
+- **Programação Orientada a Objetos (POO)**
+- **Arquitetura em Camadas**
 
-- **Users:**
-  - Create user
-    - Criação de um novo usuário.
-  - Get users
-    - Retorna todos os usuários cadastrados, apenas ADMINs tem acess a informação.
-  - Edit user by id
-    - Atualização de uma ou mais informações de um usuário através do seu ID.
-  - Delete user by id
-    - Exclusão de um usuário cadastrado.
-- **Post:**
-  - Create post
-    - Criação de um novo post.
-  - Get posts
-    - Retorna todos os posts criados.
-  - Edit post by id
-    - Atualização do conteúdo de um post através do seu ID.
-  - Delete post by id
-    - Exclusão de um post criado.
-  - Like or Dislike
-    - É possível dar like ou dislike nos posts criados.
+## Destaques do Projeto
 
-### Regras de negócio
+-- **Arquitetura modular:** Estrutura em camadas, facilitando manutenção e escalabilidade.
+- **Validações de regras de negócio:** Prevenção de e-mails duplicados e restrição de ações indevidas.
+- **Autenticação e autorização robustas:** Implementadas com JWT.
+- **Scripts claros:** Para inicialização e configuração.
+- **Documentação detalhada:** API documentada no Postman para testes práticos.
+- **Orientação a Objetos:** Código limpo, modularizado e aderente a boas práticas de POO.
 
-- O usuário não deve poder se cadastrar com um e-mail duplicado;
-- O post sempre deverá ter um usuário;
-- Somente ADMINs podem ter acesso a informações de usuários;
-- Somente usuários já cadastrados podem visualizar os posts criados;
-- O usuário não deve poder dar like/dislike no próprio post;
-- Caso usuário dê um like em um post que já tenha dado like, o like é desfeito (deleta o item da tabela);
-- Caso usuário dê um dislike em um post que já tenha dado dislike, o dislike é desfeito (deleta o item da tabela);
-- Caso usuário dê um like em um post que tenha dado dislike, o like sobrescreve o dislike.
-- Caso usuário dê um dislike em um post que tenha dado like, o dislike sobrescreve o like.
+## Endpoints
 
-### Status do projeto
+### 🟢 **Users**
+- **POST** `/users/signup` → Cria um novo usuário.
+- **POST** `/users/login` → Realiza o login de um usuário já cadastrado e retorna token de autenticação.
+- **GET** `/users?q=opcional` → Retorna todos os usuários cadastrados (restrito a ADMINs).
+- **PUT** `/users/:id` → Atualiza um usuário pelo seu ID (restrito ao próprio usuário ou a ADMINs).
+- **DELETE** `/users/:id` → Remove um usuário existente (restrito ao próprio usuário ou a ADMINs).
 
-- Concluído ⏳
+### 🔵 **Posts**
+- **POST** `/posts` → Cria um novo post (restrito a usuários cadastrados e autenticados).
+- **GET** `/posts` → Retorna todos os posts criados (restrito a usuários autenticados).
+- **PUT** `/posts/:id` → Atualiza um post pelo seu ID (restrito ao autor do post ou a ADMINs).
+- **PUT** `/posts/:id/like` → Permite curtir ou descurtir um post pelo seu ID (restrito a usuários autenticados).  
+  **Obs.:** Caso o usuário já tenha dado um like e dê novamente, o like é removido. O mesmo ocorre com o dislike. Se o usuário deu um like e em seguida der um dislike, o dislike sobrescreve o like — e vice-versa.
+- **DELETE** `/posts/:id` → Exclui um post pelo seu ID (restrito ao autor do post ou a ADMINs).
 
-## Contato
 
-E-mail: suuzanemoura@gmail.com
+## Status do Projeto
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/suuzanemoura/)
+- ✅ **Concluído**
+
+## <img alt="Coração Roxo" height="15" src="https://github.com/suuzanemoura/suuzanemoura/assets/104701271/ce158244-38f2-4162-b0a4-24b1cfa66ef8"> **Contato**  
+[![Email](https://img.shields.io/badge/-Gmail-EBE2F1?style=for-the-badge&logo=gmail&logoColor=460C68)](mailto:suuzanemoura@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-EBE2F1?style=for-the-badge&logo=linkedin&logoColor=460C68)](https://www.linkedin.com/in/suuzanemoura)
+[![Behance](https://img.shields.io/badge/-Behance-EBE2F1?style=for-the-badge&logo=behance&logoColor=460C68)](https://www.behance.net/suzanemoura)
