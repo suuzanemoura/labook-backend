@@ -43,6 +43,15 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 - **Programação Orientada a Objetos (POO)**
 - **Arquitetura em Camadas**
 
+## Regras do Negócio
+- Cadastro bloqueia e-mails duplicados.
+- Um post deve estar sempre vinculado a um usuário.
+- Somente ADMINs podem acessar informações de todos os usuários.
+- Apenas usuários autenticados podem visualizar e interagir com posts.
+- Usuários não podem curtir ou descurtir os próprios posts.
+- Curtir ou descurtir repetidamente desfaz a ação anterior.
+- Like e dislike se sobrepõem conforme a última interação do usuário.
+
 ## Destaques do Projeto
 
 - **Arquitetura modular:** Estrutura em camadas, facilitando manutenção e escalabilidade.
@@ -66,9 +75,7 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 - **GET** `/posts` → Retorna todos os posts criados (restrito a usuários autenticados).
 - **PUT** `/posts/:id` → Atualiza um post pelo seu ID (restrito ao autor do post ou a ADMINs).
 - **PUT** `/posts/:id/like` → Permite curtir ou descurtir um post pelo seu ID (restrito a usuários autenticados).  
-  **Obs.:** Caso o usuário já tenha dado um like e dê novamente, o like é removido. O mesmo ocorre com o dislike. Se o usuário deu um like e em seguida der um dislike, o dislike sobrescreve o like — e vice-versa.
 - **DELETE** `/posts/:id` → Exclui um post pelo seu ID (restrito ao autor do post ou a ADMINs).
-
 
 ## Status do Projeto
 
